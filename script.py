@@ -4,7 +4,7 @@ import language_tool_python
 tool = language_tool_python.LanguageTool('fr')  # 'fr' pour le français
 
 # Texte à vérifier
-text = "Je mange une pomme et des poir."
+text = "Bonjour, pour avoir du sons il faut bien que le vidéo projecteur sois allumer. Si il a pas de sons verrifier que Windows a bien du sons. Sinon il faut monter le sons directement sur le vidéo projecteur sois avec la télécommande si il en a une sinon directement sur le vidéo"
 
 # Obtenir les corrections
 matches = tool.check(text)
