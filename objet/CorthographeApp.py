@@ -29,9 +29,9 @@ class TextCorrectionApp:
         # Zone de texte pour entrer le texte à corriger
         self.__zoneTextIn = ScrolledText(self.__frameInText, wrap=WORD, width=80, height=10)
         # Bouton pour vérifier le texte
-        self.__btnVerif = Button(self.__frameInText, text="Vérifier le texte", command=self.check_text,bg=background,fg=fontGround,font=styleText)
+        self.__btnVerif = Button(self.__frameInText, text="Vérifier le texte", command=self.__checkTexte,bg=background,fg=fontGround,font=styleText)
         # Bouton pour appliquer les corrections
-        self.__btnApply = Button(self.__frameCorrect, text="Appliquer les corrections", command=self.apply_corrections,bg=background,fg=fontGround,font=styleText)
+        self.__btnApply = Button(self.__frameCorrect, text="Appliquer les corrections", command=self.__applyCorrection,bg=background,fg=fontGround,font=styleText)
         # Zone de texte pour afficher les erreurs et corrections
         self.__zoneSortie = ScrolledText(self.__frameCorrect, wrap=WORD, width=80, height=15)
         # Label de sortie du texte 
@@ -51,7 +51,7 @@ class TextCorrectionApp:
         boutonCopy.place(relx=0.5, rely=1.0, anchor="s")
         
     
-    def check_text(self):
+    def __checkTexte(self):
         self.__frameInText.pack_forget()
         self.__frameCorrect.pack()
         text = self.__zoneTextIn.get("1.0", END).strip()  # Récupère le texte de la zone de saisie
@@ -88,7 +88,7 @@ class TextCorrectionApp:
         self.__root.mainloop()
         
     
-    def apply_corrections(self):
+    def __applyCorrection(self):
         if not self.matches:
             messagebox.showinfo("Info", "Aucune correction à appliquer.")
             self.__frameCorrect.pack_forget()
