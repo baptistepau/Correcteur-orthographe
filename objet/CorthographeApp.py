@@ -2,46 +2,64 @@ from tkinter import*
 from tkinter.scrolledtext import*
 from tkinter import StringVar, OptionMenu, messagebox
 from objet.COrthographe import*
+import pyperclip
 
 class TextCorrectionApp:
-    def __init__(self, ):
+    def __init__(self):
         self.__root = Tk()
         self.__root.maxsize(700,500)
         self.__root.minsize(700,500)
         self.corrector = COrthographe()  # Instancie l'objet de correction de texte
         self.error_vars = []  # Pour stocker les variables associées aux suggestions de correction
+        self.__textCorrect = ""
         
         # Configuration de la fenêtre principale
         self.__root.title("Correcteur de texte")
-        self.__root.geometry("800x600")
-
+        # Frame
+        self.__frameInText = Frame(self.__root,width=700,height=500,bg="red")
+        self.__frameCorrect =  Frame(self.__root,width=700,height=500,bg="blue")
+        self.__frameOut =  Frame(self.__root,width=700,height=500,bg="green")
+        # Label de presentation 
+        labelIn = Label(self.__frameInText,text="Phrase a corrigée :")
+        labelCorect = Label(self.__frameCorrect,text="Correction de la phrase :")
         # Zone de texte pour entrer le texte à corriger
-        self.text_area = ScrolledText(self.__root, wrap=WORD, width=80, height=10)
-        self.text_area.grid(column=0, row=0, padx=10, pady=10, columnspan=2)
-        
+        self.__zoneTextIn = ScrolledText(self.__frameInText, wrap=WORD, width=80, height=10)
         # Bouton pour vérifier le texte
-        self.check_button = Button(self.__root, text="Vérifier le texte", command=self.check_text)
-        self.check_button.grid(column=0, row=1, padx=10, pady=10)
-
+        self.__btnVerif = Button(self.__frameInText, text="Vérifier le texte", command=self.check_text)
         # Bouton pour appliquer les corrections
-        self.apply_button = Button(self.__root, text="Appliquer les corrections", command=self.apply_corrections)
-        self.apply_button.grid(column=1, row=1, padx=10, pady=10)
-
+        self.__btnApply = Button(self.__frameCorrect, text="Appliquer les corrections", command=self.apply_corrections)
         # Zone de texte pour afficher les erreurs et corrections
-        self.output_area = ScrolledText(self.__root, wrap=WORD, width=80, height=15)
-        self.output_area.grid(column=0, row=2, padx=10, pady=10, columnspan=2)
+        self.__zoneSortie = ScrolledText(self.__frameCorrect, wrap=WORD, width=80, height=15)
+        # Label de sortie du texte 
+        self.__labelOutCorrection = Label(self.__frameOut,justify="left",wraplength=400)
+        boutonCopy = Button(self.__frameOut,text="Copier",command=self.__copyText)
+
+        # Affichage
+        labelIn.place(x=0,y=0)
+        self.__zoneTextIn.place(relx=0.5, rely=0.5, anchor="center")
+        self.__btnVerif.place(relx=0.5, rely=1.0, anchor="s")
+        
+        labelCorect.place(x=0,y=0)
+        self.__zoneSortie.place(relx=0.5, rely=0.5, anchor="center")
+        self.__btnApply.place(relx=0.5, rely=1.0, anchor="s")
+        
+        self.__labelOutCorrection.place(x=0,y=0)
+        boutonCopy.place(relx=0.5, rely=1.0, anchor="s")
+        
     
     def check_text(self):
-        text = self.text_area.get("1.0", END).strip()  # Récupère le texte de la zone de saisie
+        self.__frameInText.pack_forget()
+        self.__frameCorrect.pack()
+        text = self.__zoneTextIn.get("1.0", END).strip()  # Récupère le texte de la zone de saisie
         self.matches = self.corrector.check_text(text)  # Vérifie le texte
 
-        self.output_area.delete("1.0",END)  # Efface la zone de sortie
+        self.__zoneSortie.delete("1.0",END)  # Efface la zone de sortie
         self.error_vars = []  # Réinitialiser les variables des erreurs
 
         if self.matches:
             for i, match in enumerate(self.matches):
                 error_message = f"Erreur {i + 1}: {match.message}\nContexte: {match.context}\n"
-                self.output_area.insert(END, error_message)
+                self.__zoneSortie.insert(END, error_message)
 
                 if match.replacements:
                     # Variable pour stocker le choix de l'utilisateur pour cette erreur
@@ -50,19 +68,21 @@ class TextCorrectionApp:
 
                     # Ajoute les suggestions et "Ignorer" comme choix dans le menu déroulant
                     correction_choices = ["Ignorer"] + match.replacements
-                    dropdown = OptionMenu(self.output_area, selected_correction, *correction_choices)
-                    self.output_area.window_create(END, window=dropdown)
+                    dropdown = OptionMenu(self.__zoneSortie, selected_correction, *correction_choices)
+                    self.__zoneSortie.window_create(END, window=dropdown)
 
                     # Stocke la variable de correction dans la liste
                     self.error_vars.append(selected_correction)
 
                     # Ajoute une séparation entre chaque erreur
-                    self.output_area.insert(END, "\n\n")
+                    self.__zoneSortie.insert(END, "\n\n")
         else:
-            self.output_area.insert(END, "Aucune erreur détectée.\n")
+            self.__zoneSortie.insert(END, "Aucune erreur détectée.\n")
     
     def active(self):
+        self.__frameInText.pack()
         self.__root.mainloop()
+        
     
     def apply_corrections(self):
         if not self.matches:
@@ -70,7 +90,7 @@ class TextCorrectionApp:
             return
 
         # Appliquer les corrections sélectionnées par l'utilisateur
-        corrected_text = self.text_area.get("1.0",END).strip()
+        corrected_text = self.__zoneTextIn.get("1.0",END).strip()
         offset = 0
 
         for i, match in enumerate(self.matches):
@@ -85,8 +105,17 @@ class TextCorrectionApp:
                 offset += len(replacement) - match.errorLength
 
         # Met à jour la zone de texte avec le texte corrigé
-        self.text_area.delete("1.0", END)
-        self.text_area.insert(END, corrected_text)
+        self.__textCorrect = corrected_text
+        self.__labelOutCorrection.configure(text=corrected_text)
+        self.__frameCorrect.pack_forget()
+        self.__frameOut.pack()
 
         # Afficher une confirmation
         messagebox.showinfo("Info", "Les corrections ont été appliquées.")
+    
+    def __copyText(self):
+        pyperclip.copy(self.__textCorrect)
+        self.__frameOut.pack_forget()
+        self.__frameInText.pack()
+        self.__zoneTextIn.delete(1.0,END)
+        messagebox.showinfo("Info","Texte corriger copier")
