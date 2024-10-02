@@ -5,34 +5,38 @@ from objet.COrthographe import*
 import pyperclip
 
 class TextCorrectionApp:
-    def __init__(self):
+    def __init__(self,color:str,textColor:str):
         self.__root = Tk()
         self.__root.maxsize(700,500)
         self.__root.minsize(700,500)
         self.corrector = COrthographe()  # Instancie l'objet de correction de texte
         self.error_vars = []  # Pour stocker les variables associées aux suggestions de correction
         self.__textCorrect = ""
-        
+        # Couleur et taille des texte 
+        styleText = ("Arial","15")
+        styleTitre = ("Arial","25")
+        fontGround = textColor
+        background = color
         # Configuration de la fenêtre principale
         self.__root.title("Correcteur de texte")
         # Frame
-        self.__frameInText = Frame(self.__root,width=700,height=500,bg="red")
-        self.__frameCorrect =  Frame(self.__root,width=700,height=500,bg="blue")
-        self.__frameOut =  Frame(self.__root,width=700,height=500,bg="green")
+        self.__frameInText = Frame(self.__root,width=700,height=500,bg=background)
+        self.__frameCorrect =  Frame(self.__root,width=700,height=500,bg=background)
+        self.__frameOut =  Frame(self.__root,width=700,height=500,bg=background)
         # Label de presentation 
-        labelIn = Label(self.__frameInText,text="Phrase a corrigée :")
-        labelCorect = Label(self.__frameCorrect,text="Correction de la phrase :")
+        labelIn = Label(self.__frameInText,text="Phrase a corrigée :",bg=background,fg=fontGround,font=styleTitre)
+        labelCorect = Label(self.__frameCorrect,text="Correction de la phrase :",bg=background,fg=fontGround,font=styleTitre)
         # Zone de texte pour entrer le texte à corriger
         self.__zoneTextIn = ScrolledText(self.__frameInText, wrap=WORD, width=80, height=10)
         # Bouton pour vérifier le texte
-        self.__btnVerif = Button(self.__frameInText, text="Vérifier le texte", command=self.check_text)
+        self.__btnVerif = Button(self.__frameInText, text="Vérifier le texte", command=self.check_text,bg=background,fg=fontGround,font=styleText)
         # Bouton pour appliquer les corrections
-        self.__btnApply = Button(self.__frameCorrect, text="Appliquer les corrections", command=self.apply_corrections)
+        self.__btnApply = Button(self.__frameCorrect, text="Appliquer les corrections", command=self.apply_corrections,bg=background,fg=fontGround,font=styleText)
         # Zone de texte pour afficher les erreurs et corrections
         self.__zoneSortie = ScrolledText(self.__frameCorrect, wrap=WORD, width=80, height=15)
         # Label de sortie du texte 
-        self.__labelOutCorrection = Label(self.__frameOut,justify="left",wraplength=400)
-        boutonCopy = Button(self.__frameOut,text="Copier",command=self.__copyText)
+        self.__labelOutCorrection = Label(self.__frameOut,justify="left",wraplength=400,bg=background,fg=fontGround,font=styleText)
+        boutonCopy = Button(self.__frameOut,text="Copier",command=self.__copyText,bg=background,fg=fontGround,font=styleText)
 
         # Affichage
         labelIn.place(x=0,y=0)
@@ -87,6 +91,8 @@ class TextCorrectionApp:
     def apply_corrections(self):
         if not self.matches:
             messagebox.showinfo("Info", "Aucune correction à appliquer.")
+            self.__frameCorrect.pack_forget()
+            self.__frameInText.pack()
             return
 
         # Appliquer les corrections sélectionnées par l'utilisateur
