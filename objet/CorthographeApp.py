@@ -19,6 +19,7 @@ class TextCorrectionApp:
         background = color
         # Configuration de la fenêtre principale
         self.__root.title("Correcteur de texte")
+        self.__root.iconbitmap("img/dictionnaire.ico")
         # Frame
         self.__frameInText = Frame(self.__root,width=700,height=500,bg=background)
         self.__frameCorrect =  Frame(self.__root,width=700,height=500,bg=background)
