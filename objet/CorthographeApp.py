@@ -10,6 +10,7 @@ class TextCorrectionApp:
         self.__root = ctk.CTk()
         self.__root.maxsize(700,500)
         self.__root.minsize(700,500)
+        self.__root.iconbitmap("img/dictionnaire.ico")
         self.corrector = COrthographe()  # Instancie l'objet de correction de texte
         self.error_vars = []  # Pour stocker les variables associées aux suggestions de correction
         self.__textCorrect = ""
